@@ -78,6 +78,16 @@ export class CreateProductDto {
   sizes: string[];
 
   /**
+   * The tags associated with the product.
+   * It should be an array of strings.
+   * Each string should represent a tag (e.g., 'new', 'sale', 'featured').
+   */
+  @IsString({ each: true })
+  @IsArray()
+  @IsOptional()
+  tags: string[];
+
+  /**
    * The gender category for the product.
    * It should be one of the following values: 'men', 'women', 'kid', 'unisex'.
    * This ensures the product is categorized correctly.
