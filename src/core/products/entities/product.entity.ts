@@ -1,8 +1,10 @@
+import { ProductImage } from 'src/core/products/entities/product-image.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
 
@@ -10,7 +12,7 @@ import {
  * Product Entity
  * @description Product entity to store product data
  */
-@Entity()
+@Entity({ name: 'products' })
 export class Product {
   /*
    * The id of the product.
@@ -98,6 +100,16 @@ export class Product {
     default: [],
   })
   tags: string[];
+
+  /**
+   * The images of the product.
+   * It should be an array of ProductImage entities.
+   */
+  @OneToMany(() => ProductImage, (productImage) => productImage.product, {
+    cascade: true,
+    eager: true,
+  })
+  images?: ProductImage[];
 
   /**
    * The colors of the product.

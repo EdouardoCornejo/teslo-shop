@@ -87,6 +87,11 @@ export class CreateProductDto {
   @IsOptional()
   tags: string[];
 
+  @IsString({ each: true })
+  @IsArray()
+  @IsOptional()
+  images?: string[];
+
   /**
    * The gender category for the product.
    * It should be one of the following values: 'men', 'women', 'kid', 'unisex'.
