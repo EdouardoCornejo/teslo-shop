@@ -10,4 +10,5 @@ export const JoiValidationSchema = Joi.object({
   DB_HOST: Joi.string().default('localhost'),
   DB_PORT: Joi.number().default(5432),
   DB_USER_NAME: Joi.string().default('postgres'),
+  HOST_API: Joi.string().required(),
 });

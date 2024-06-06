@@ -25,8 +25,8 @@ async function bootstrap() {
       }),
     );
 
-    await app.listen(3000);
-    Logger.warn(`Server running on http://localhost:3000`);
+    await app.listen(process.env.PORT || 3000);
+    Logger.verbose(`Server running on http://localhost:${process.env.PORT}`);
   }
   bootstrap();
 }

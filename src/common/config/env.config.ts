@@ -8,4 +8,5 @@ export const EnvConfig = () => ({
   dbHost: process.env.DB_HOST,
   dbPort: process.env.DB_PORT,
   dbUserName: process.env.DB_USER_NAME,
+  hostApi: process.env.HOST_API,
 });
