@@ -7,7 +7,11 @@ import { SeedModule } from './core/seed/seed.module';
 import { FilesModule } from 'src/core/files/files.module';
 import { ServeStaticModule } from '@nestjs/serve-static';
 import { join } from 'path';
+import { AuthModule } from 'src/core/auth/auth.module';
 
+/**
+ * Module responsible for handling the application configuration.
+ */
 @Module({
   imports: [
     ConfigModule.forRoot({
@@ -34,6 +38,7 @@ import { join } from 'path';
     CommonModule,
     SeedModule,
     FilesModule,
+    AuthModule,
   ],
 })
 export class AppModule {}

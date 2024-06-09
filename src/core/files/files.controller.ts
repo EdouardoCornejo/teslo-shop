@@ -56,6 +56,11 @@ export class FilesController {
     };
   }
 
+  /**
+   * Find product image
+   * @param res Response
+   * @param imageName Image name
+   */
   @Get('product/:imageName')
   findProductImage(
     @Res() res: Response,

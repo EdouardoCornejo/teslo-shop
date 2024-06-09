@@ -1,23 +1,80 @@
+/**
+ * This file contains the initial data that will be used to seed the database.
+ */
 interface SeedProduct {
+  /**
+   * The description of the product.
+   */
   description: string;
+
+  /**
+   * The images of the product.
+   */
   images: string[];
+
+  /**
+   * The stock of the product.
+   */
   stock: number;
+
+  /**
+   * The price of the product.
+   */
   price: number;
+
+  /**
+   * The sizes available for the product.
+   */
   sizes: ValidSizes[];
+
+  /**
+   * The slug of the product.
+   */
   slug: string;
+
+  /**
+   * The tags of the product.
+   */
   tags: string[];
+
+  /**
+   * The title of the product.
+   */
   title: string;
+
+  /**
+   * The type of the product.
+   */
   type: ValidTypes;
+
+  /**
+   * The gender of the product.
+   */
   gender: 'men' | 'women' | 'kid' | 'unisex';
 }
 
+/**
+ * The valid sizes for the products.
+ */
 type ValidSizes = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL';
+/**
+ * The valid types for the products.
+ */
 type ValidTypes = 'shirts' | 'pants' | 'hoodies' | 'hats';
 
+/**
+ * The seed data that will be used to populate the database.
+ */
 interface SeedData {
+  /**
+   * The products that will be seeded.
+   */
   products: SeedProduct[];
 }
 
+/**
+ * The initial data that will be used to seed the database.
+ */
 export const initialData: SeedData = {
   products: [
     {

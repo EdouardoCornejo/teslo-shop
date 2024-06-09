@@ -9,4 +9,6 @@ export const EnvConfig = () => ({
   dbPort: process.env.DB_PORT,
   dbUserName: process.env.DB_USER_NAME,
   hostApi: process.env.HOST_API,
+  jwtSecret: process.env.JWT_SECRET,
+  expiresJwt: process.env.EXPIRES_JWT,
 });

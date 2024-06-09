@@ -4,12 +4,39 @@
 
 # Teslo API
 
-1. Clonar proyecto 
-2. ``` npm install ```
-3. Clonar el archivo ```.env.example``` y renombrarlo a ```.env```
-4. Cambiar las variables de entorno. 
-5. Inicializar la base de datos. 
-``` 
+1. Clone the Project.
+
+```
+  git clone <repository-url>
+```
+
+2. Install Dependencies.
+
+```
+npm install
+```
+
+3. Configure Environment Variables.
+
+Duplicate the `.env.example` file and rename it to `.env`
+Update the environment variables in the `.env` file with your specific settings
+
+4. Initialize the Database.
+
+```
   docker-compose up -d
 ```
-6. Ejecutar: ```npm run start:dev ```
+
+5. Start the Development Server:
+
+```
+npm run start:dev
+```
+
+6. Run Database Seed.
+
+Open your browser and navigate to:
+
+```
+http://localhost:3000/api/seed
+```

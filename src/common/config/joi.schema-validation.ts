@@ -11,4 +11,6 @@ export const JoiValidationSchema = Joi.object({
   DB_PORT: Joi.number().default(5432),
   DB_USER_NAME: Joi.string().default('postgres'),
   HOST_API: Joi.string().required(),
+  JWT_SECRET: Joi.string().required(),
+  EXPIRES_JWT: Joi.string().required(),
 });
