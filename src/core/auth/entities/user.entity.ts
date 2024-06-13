@@ -1,4 +1,10 @@
-import { Column, Entity, PrimaryGeneratedColumn } from 'typeorm';
+import {
+  BeforeInsert,
+  BeforeUpdate,
+  Column,
+  Entity,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 /**
  * Entity that represents a user in the database.
@@ -49,4 +55,20 @@ export class User {
     default: ['user'],
   })
   roles: string[];
+
+  /**
+   * The email in lowercase when the user was created.
+   */
+  @BeforeInsert()
+  checkFieldsBeforeInsert() {
+    this.email = this.email.toLocaleLowerCase().trim();
+  }
+
+  /**
+   * The email in lowercase when the user was updated.
+   */
+  @BeforeUpdate()
+  checkFieldsBeforeUpdate() {
+    this.checkFieldsBeforeInsert();
+  }
 }

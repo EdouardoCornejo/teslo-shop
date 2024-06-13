@@ -13,6 +13,8 @@ import { ProductsService } from './products.service';
 import { CreateProductDto } from './dto/create-product.dto';
 import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
+import { Auth } from 'src/core/auth/decorators';
+import { ValidRoles } from 'src/common/interface';
 
 /**
  * The ProductsController class is a controller that handles the HTTP requests related to products.
@@ -37,6 +39,7 @@ export class ProductsController {
    * @returns The created product.
    */
   @Post()
+  @Auth(ValidRoles.superUser)
   create(@Body() createProductDto: CreateProductDto) {
     return this.productsService.create(createProductDto);
   }
@@ -73,6 +76,7 @@ export class ProductsController {
    * @returns The updated product.
    */
   @Patch(':id')
+  @Auth(ValidRoles.superUser)
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -88,6 +92,7 @@ export class ProductsController {
    * @returns The deleted product.
    */
   @Delete(':id')
+  @Auth(ValidRoles.superUser)
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.remove(id);
   }
