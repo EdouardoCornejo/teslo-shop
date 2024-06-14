@@ -15,6 +15,8 @@ import { UpdateProductDto } from './dto/update-product.dto';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { Auth } from 'src/core/auth/decorators';
 import { ValidRoles } from 'src/common/interface';
+import { GetUser } from 'src/shared/decorators';
+import { User } from 'src/core/auth/entities/user.entity';
 
 /**
  * The ProductsController class is a controller that handles the HTTP requests related to products.
@@ -39,9 +41,9 @@ export class ProductsController {
    * @returns The created product.
    */
   @Post()
-  @Auth(ValidRoles.superUser)
-  create(@Body() createProductDto: CreateProductDto) {
-    return this.productsService.create(createProductDto);
+  @Auth()
+  create(@Body() createProductDto: CreateProductDto, @GetUser() user: User) {
+    return this.productsService.create(createProductDto, user);
   }
 
   /**
@@ -80,8 +82,9 @@ export class ProductsController {
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateProductDto: UpdateProductDto,
+    @GetUser() user: User,
   ) {
-    return this.productsService.update(id, updateProductDto);
+    return this.productsService.update(id, updateProductDto, user);
   }
 
   /**

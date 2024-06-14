@@ -86,6 +86,17 @@ export class AuthService {
   }
 
   /**
+   * checkAuthStatus
+   * @param user
+   */
+  async checkAuthStatus(user: User) {
+    return {
+      ...user,
+      token: this.GetJwtToken({ ...user }),
+    };
+  }
+
+  /**
    * getUser
    * @param User
    */

@@ -13,6 +13,7 @@ import { DataSource, Repository } from 'typeorm';
 import { PaginationDto } from 'src/common/dtos/pagination.dto';
 import { validate as isUUID } from 'uuid';
 import { ProductImage } from 'src/core/products/entities/product-image.entity';
+import { User } from 'src/core/auth/entities/user.entity';
 
 /**
  * The ProductsService class is a service provider that is used to interact with the database.
@@ -48,7 +49,7 @@ export class ProductsService {
    * @param createProductDto The data transfer object that contains the data for creating a new product.
    * It is validated using the class-validator library.
    */
-  async create(createProductDto: CreateProductDto) {
+  async create(createProductDto: CreateProductDto, user: User) {
     try {
       const { images = [], ...productDetails } = createProductDto;
 
@@ -57,6 +58,7 @@ export class ProductsService {
         images: images.map((image: string) =>
           this.productImageRepository.create({ url: image }),
         ),
+        user,
       });
 
       await this.productRepository.save(product);
@@ -157,7 +159,7 @@ export class ProductsService {
    * @param id The id of the product to update.
    * It is a string that represents the unique identifier of the product.
    */
-  async update(id: string, updateProductDto: UpdateProductDto) {
+  async update(id: string, updateProductDto: UpdateProductDto, user: User) {
     const { images, ...toUpdate } = updateProductDto;
     const product = await this.productRepository.preload({
       id,
@@ -182,6 +184,8 @@ export class ProductsService {
           this.productImageRepository.create({ url: image }),
         );
       }
+
+      product.user = user;
 
       //save the product
       await queryRunner.manager.save(product);

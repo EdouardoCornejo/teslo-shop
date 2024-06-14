@@ -1,9 +1,11 @@
+import { User } from 'src/core/auth/entities/user.entity';
 import { ProductImage } from 'src/core/products/entities/product-image.entity';
 import {
   BeforeInsert,
   BeforeUpdate,
   Column,
   Entity,
+  ManyToOne,
   OneToMany,
   PrimaryGeneratedColumn,
 } from 'typeorm';
@@ -100,6 +102,9 @@ export class Product {
     default: [],
   })
   tags: string[];
+
+  @ManyToOne(() => User, (user) => user.product, { eager: true })
+  user: User;
 
   /**
    * The images of the product.

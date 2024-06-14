@@ -1,3 +1,4 @@
+import * as Bcrypt from 'bcrypt';
 /**
  * This file contains the initial data that will be used to seed the database.
  */
@@ -63,6 +64,16 @@ type ValidSizes = 'XS' | 'S' | 'M' | 'L' | 'XL' | 'XXL' | 'XXXL';
 type ValidTypes = 'shirts' | 'pants' | 'hoodies' | 'hats';
 
 /**
+ * The seed user that will be used to populate the database.
+ */
+interface SeedUser {
+  email: string;
+  fullName: string;
+  password: string;
+  roles: string[];
+}
+
+/**
  * The seed data that will be used to populate the database.
  */
 interface SeedData {
@@ -70,12 +81,32 @@ interface SeedData {
    * The products that will be seeded.
    */
   products: SeedProduct[];
+
+  /**
+   * The users that will be seeded.
+   */
+  users: SeedUser[];
 }
 
 /**
  * The initial data that will be used to seed the database.
  */
 export const initialData: SeedData = {
+  users: [
+    {
+      email: 'admin@gmail.com',
+      fullName: 'Admin',
+      password: Bcrypt.hashSync('Abc123456', 10),
+      roles: ['admin'],
+    },
+    {
+      email: 'super-user@gmail.com',
+      fullName: 'Super User',
+      password: Bcrypt.hashSync('Abc123456', 10),
+      roles: ['user', 'super-user'],
+    },
+  ],
+
   products: [
     {
       description:
