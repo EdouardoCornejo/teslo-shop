@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { User } from 'src/core/auth/entities/user.entity';
 import { ProductImage } from 'src/core/products/entities/product-image.entity';
 import {
@@ -20,6 +21,11 @@ export class Product {
    * The id of the product.
    * It is a unique identifier for the product.
    */
+  @ApiProperty({
+    example: 'a8134509-c862-44f4-8bda-52b9cc595518',
+    description: 'The unique identifier of the product',
+    uniqueItems: true,
+  })
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
@@ -27,6 +33,11 @@ export class Product {
    * The title of the product.
    * It should be a string with a minimum length of 1 character.
    */
+  @ApiProperty({
+    example: 't-shirt',
+    description: 'Product title',
+    uniqueItems: true,
+  })
   @Column('text', {
     unique: true,
   })
@@ -37,6 +48,11 @@ export class Product {
    * It should be a positive number.
    * It is optional, as the price can be set later.
    */
+  @ApiProperty({
+    example: 10.99,
+    description: 'Product price',
+    uniqueItems: true,
+  })
   @Column('float', {
     default: 0,
   })
@@ -47,6 +63,11 @@ export class Product {
    * It should be a string.
    * It is optional, as the description can be added later.
    */
+  @ApiProperty({
+    example: 'This is a t-shirt',
+    description: 'Product description',
+    uniqueItems: true,
+  })
   @Column({
     type: 'text',
     nullable: true,
@@ -57,6 +78,11 @@ export class Product {
    * The slug of the product.
    * It is a unique identifier for the product.
    */
+  @ApiProperty({
+    example: 't_shirt',
+    description: 'Product slug identifier',
+    uniqueItems: true,
+  })
   @Column({
     type: 'text',
     unique: true,
@@ -68,6 +94,11 @@ export class Product {
    * It should be a positive integer.
    * It is optional, as the stock can be added later.
    */
+  @ApiProperty({
+    example: 10,
+    description: 'Product Stock',
+    default: 0,
+  })
   @Column('int', {
     default: 0,
   })
@@ -78,6 +109,10 @@ export class Product {
    * It should be an array of strings.
    * Each string should represent a size (e.g., 'S', 'M', 'L').
    */
+  @ApiProperty({
+    example: ['S', 'M', 'L'],
+    description: 'Product sizes',
+  })
   @Column('text', {
     array: true,
     default: [],
@@ -89,6 +124,10 @@ export class Product {
    * It should be an array of strings.
    * Each string should represent a color (e.g., 'red', 'blue', 'green').
    */
+  @ApiProperty({
+    example: 'women',
+    description: 'Product gender',
+  })
   @Column('text')
   gender: string;
 
@@ -97,6 +136,7 @@ export class Product {
    * It should be an array of strings.
    * Each string should represent a tag (e.g., 'new', 'sale', 'featured').
    */
+  @ApiProperty()
   @Column('text', {
     array: true,
     default: [],
@@ -110,6 +150,7 @@ export class Product {
    * The images of the product.
    * It should be an array of ProductImage entities.
    */
+  @ApiProperty()
   @OneToMany(() => ProductImage, (productImage) => productImage.product, {
     cascade: true,
     eager: true,

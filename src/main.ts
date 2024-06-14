@@ -2,6 +2,7 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { CustomLoggerService } from 'src/shared/config/log';
+import { DocumentBuilder, SwaggerModule } from '@nestjs/swagger';
 
 /**
  * The bootstrap function is the entry point of the application.
@@ -24,6 +25,15 @@ async function bootstrap() {
         forbidNonWhitelisted: true,
       }),
     );
+
+    const config = new DocumentBuilder()
+      .setTitle('Teslo Api')
+      .setDescription('Teslo API endpoints')
+      .setVersion('1.0')
+      .addBearerAuth()
+      .build();
+    const document = SwaggerModule.createDocument(app, config);
+    SwaggerModule.setup('api/docs', app, document);
 
     await app.listen(process.env.PORT || 3000);
     Logger.verbose(`Server running on http://localhost:${process.env.PORT}`);

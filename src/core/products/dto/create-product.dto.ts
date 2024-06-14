@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import {
   IsArray,
   IsIn,
@@ -20,6 +21,11 @@ export class CreateProductDto {
    * It should be a string with a minimum length of 1 character.
    * @example "Smartphone"
    */
+  @ApiProperty({
+    description: 'The title of the product',
+    nullable: false,
+    minLength: 1,
+  })
   @IsString()
   @MinLength(1)
   title: string;
@@ -30,6 +36,7 @@ export class CreateProductDto {
    * This field is optional, as the price can be set later.
    * @example 699.99
    */
+  @ApiProperty()
   @IsNumber()
   @IsPositive()
   @IsOptional()
@@ -41,6 +48,7 @@ export class CreateProductDto {
    * This field is optional, as the description can be added later.
    * @example "A high-end smartphone with 128GB storage"
    */
+  @ApiProperty()
   @IsString()
   @IsOptional()
   description?: string;
@@ -51,6 +59,7 @@ export class CreateProductDto {
    * This field is optional, as the category can be added later.
    * @example "electronics"
    */
+  @ApiProperty()
   @IsString()
   @IsOptional()
   slug?: string;
@@ -62,6 +71,7 @@ export class CreateProductDto {
    * If the stock is not provided, it is assumed to be 0.
    * @example 100
    */
+  @ApiProperty()
   @IsInt()
   @IsPositive()
   @IsOptional()
@@ -73,6 +83,7 @@ export class CreateProductDto {
    * Each string should represent a size (e.g., 'S', 'M', 'L').
    * @example ["S", "M", "L"]
    */
+  @ApiProperty()
   @IsString({ each: true })
   @IsArray()
   sizes: string[];
@@ -82,11 +93,13 @@ export class CreateProductDto {
    * It should be an array of strings.
    * Each string should represent a tag (e.g., 'new', 'sale', 'featured').
    */
+  @ApiProperty()
   @IsString({ each: true })
   @IsArray()
   @IsOptional()
   tags: string[];
 
+  @ApiProperty()
   @IsString({ each: true })
   @IsArray()
   @IsOptional()
@@ -98,6 +111,7 @@ export class CreateProductDto {
    * This ensures the product is categorized correctly.
    * @example "unisex"
    */
+  @ApiProperty()
   @IsIn(['men', 'women', 'kid', 'unisex'])
   gender: string;
 }

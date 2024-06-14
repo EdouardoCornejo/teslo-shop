@@ -14,11 +14,13 @@ import { fileFilter, fileNamer } from '../../shared/helpers';
 import { diskStorage } from 'multer';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
+import { ApiTags } from '@nestjs/swagger';
 
 /**
  * Files controller
  */
 @Controller('files')
+@ApiTags('Files')
 export class FilesController {
   /**
    * Constructor

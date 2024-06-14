@@ -17,6 +17,8 @@ import { Auth } from 'src/core/auth/decorators';
 import { ValidRoles } from 'src/common/interface';
 import { GetUser } from 'src/shared/decorators';
 import { User } from 'src/core/auth/entities/user.entity';
+import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import { Product } from 'src/core/products/entities/product.entity';
 
 /**
  * The ProductsController class is a controller that handles the HTTP requests related to products.
@@ -25,6 +27,7 @@ import { User } from 'src/core/auth/entities/user.entity';
 
  */
 @Controller('products')
+@ApiTags('Products')
 export class ProductsController {
   /**
    * The constructor defines the ProductsController class.
@@ -42,6 +45,14 @@ export class ProductsController {
    */
   @Post()
   @Auth()
+  @ApiBearerAuth()
+  @ApiResponse({
+    status: 201,
+    description: 'The product has been successfully created.',
+    type: Product,
+  })
+  @ApiResponse({ status: 403, description: 'Forbidden.' })
+  @ApiResponse({ status: 400, description: 'Bad Request.' })
   create(@Body() createProductDto: CreateProductDto, @GetUser() user: User) {
     return this.productsService.create(createProductDto, user);
   }

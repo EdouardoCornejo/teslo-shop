@@ -1,3 +1,4 @@
+import { ApiProperty } from '@nestjs/swagger';
 import { Product } from 'src/core/products/entities/product.entity';
 import {
   BeforeInsert,
@@ -16,12 +17,14 @@ export class User {
   /**
    * The unique identifier of the user.
    */
+  @ApiProperty()
   @PrimaryGeneratedColumn('uuid')
   id: string;
 
   /**
    * The email of the user.
    */
+  @ApiProperty()
   @Column('text', {
     unique: true,
   })
@@ -30,6 +33,7 @@ export class User {
   /**
    * The password of the user.
    */
+  @ApiProperty()
   @Column('text', {
     select: false,
   })
@@ -38,12 +42,14 @@ export class User {
   /**
    * The full name of the user.
    */
+  @ApiProperty()
   @Column('text')
   fullName: string;
 
   /**
    * The flag that indicates if the user is active.
    */
+  @ApiProperty()
   @Column('bool', {
     default: true,
   })
@@ -52,6 +58,7 @@ export class User {
   /**
    * The roles of the user.
    */
+  @ApiProperty()
   @Column('text', {
     array: true,
     default: ['user'],
