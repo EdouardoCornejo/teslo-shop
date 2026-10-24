@@ -14,7 +14,19 @@ import { fileFilter, fileNamer } from '../../shared/helpers';
 import { diskStorage } from 'multer';
 import { Response } from 'express';
 import { ConfigService } from '@nestjs/config';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBody,
+  ApiConsumes,
+  ApiCreatedResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiProduces,
+  ApiTags,
+} from '@nestjs/swagger';
+import { ErrorResponseDto } from 'src/common/dtos/error-response.dto';
+import { FileUploadDto, FileUploadResponseDto } from './dto/file-upload.dto';
 
 /**
  * Files controller
@@ -37,6 +49,21 @@ export class FilesController {
    * @returns Uploaded file
    */
   @Post('product')
+  @ApiOperation({
+    summary: 'Upload a product image',
+    description:
+      'Uploads one image (jpg, jpeg, png or gif) in the `file` field. It is stored with a UUID name and the response contains its public URL.',
+  })
+  @ApiConsumes('multipart/form-data')
+  @ApiBody({ type: FileUploadDto })
+  @ApiCreatedResponse({
+    description: 'Image stored.',
+    type: FileUploadResponseDto,
+  })
+  @ApiBadRequestResponse({
+    description: 'No file was sent or it is not a valid image.',
+    type: ErrorResponseDto,
+  })
   @UseInterceptors(
     FileInterceptor('file', {
       fileFilter: fileFilter,
@@ -64,6 +91,25 @@ export class FilesController {
    * @param imageName Image name
    */
   @Get('product/:imageName')
+  @ApiOperation({
+    summary: 'Get a product image',
+    description:
+      'Streams a stored product image (seeded or uploaded) by its file name.',
+  })
+  @ApiParam({
+    name: 'imageName',
+    description: 'Image file name',
+    example: '1740176-00-A_0_2000.jpg',
+  })
+  @ApiProduces('image/jpeg', 'image/png', 'image/gif')
+  @ApiOkResponse({
+    description: 'The image file.',
+    schema: { type: 'string', format: 'binary' },
+  })
+  @ApiBadRequestResponse({
+    description: 'No image with that name.',
+    type: ErrorResponseDto,
+  })
   findProductImage(
     @Res() res: Response,
     @Param('imageName') imageName: string,

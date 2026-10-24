@@ -15,8 +15,9 @@ export class LoginUserDto {
    * The email of the user.
    */
   @ApiProperty({
-    example: 'email@email.com',
+    example: 'super-user@gmail.com',
     description: 'The email of the user.',
+    format: 'email',
     required: true,
   })
   @IsString()
@@ -27,8 +28,12 @@ export class LoginUserDto {
    * The password of the user.
    */
   @ApiProperty({
-    example: 'password123',
-    description: 'The password of the user.',
+    example: 'Abc123456',
+    description:
+      'The password of the user (uppercase, lowercase letter and a number).',
+    minLength: 6,
+    maxLength: 50,
+    format: 'password',
     required: true,
   })
   @IsString()

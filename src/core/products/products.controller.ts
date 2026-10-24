@@ -17,8 +17,20 @@ import { Auth } from 'src/core/auth/decorators';
 import { ValidRoles } from 'src/common/interface';
 import { GetUser } from 'src/shared/decorators';
 import { User } from 'src/core/auth/entities/user.entity';
-import { ApiBearerAuth, ApiResponse, ApiTags } from '@nestjs/swagger';
+import {
+  ApiBadRequestResponse,
+  ApiBearerAuth,
+  ApiCreatedResponse,
+  ApiForbiddenResponse,
+  ApiNotFoundResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiParam,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
 import { Product } from 'src/core/products/entities/product.entity';
+import { ErrorResponseDto } from 'src/common/dtos/error-response.dto';
 
 /**
  * The ProductsController class is a controller that handles the HTTP requests related to products.
@@ -46,13 +58,24 @@ export class ProductsController {
   @Post()
   @Auth()
   @ApiBearerAuth()
-  @ApiResponse({
-    status: 201,
+  @ApiOperation({
+    summary: 'Create a product',
+    description:
+      'Creates a product owned by the authenticated user (any role). The slug is generated from the title when omitted.',
+  })
+  @ApiCreatedResponse({
     description: 'The product has been successfully created.',
     type: Product,
   })
-  @ApiResponse({ status: 403, description: 'Forbidden.' })
-  @ApiResponse({ status: 400, description: 'Bad Request.' })
+  @ApiBadRequestResponse({
+    description:
+      'Validation failed, or the title/slug already exists (duplicate key).',
+    type: ErrorResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing, invalid or expired token.',
+    type: ErrorResponseDto,
+  })
   create(@Body() createProductDto: CreateProductDto, @GetUser() user: User) {
     return this.productsService.create(createProductDto, user);
   }
@@ -63,6 +86,16 @@ export class ProductsController {
    * @returns An array of products.
    */
   @Get()
+  @ApiOperation({
+    summary: 'List products',
+    description:
+      'Returns a page of products with their image file names. Use `limit` and `offset` to paginate.',
+  })
+  @ApiOkResponse({ description: 'A page of products.', type: [Product] })
+  @ApiBadRequestResponse({
+    description: 'Invalid `limit` or `offset`.',
+    type: ErrorResponseDto,
+  })
   findAll(@Query() paginationDto: PaginationDto) {
     return this.productsService.findAll(paginationDto);
   }
@@ -75,6 +108,21 @@ export class ProductsController {
    * @returns The product with the given id.
    */
   @Get(':term')
+  @ApiOperation({
+    summary: 'Get a product by UUID, title or slug',
+    description:
+      'A UUID searches by id; anything else matches the title (case-insensitive) or the slug.',
+  })
+  @ApiParam({
+    name: 'term',
+    description: 'Product UUID, title or slug',
+    example: 'mens_chill_crew_neck_sweatshirt',
+  })
+  @ApiOkResponse({ description: 'The product.', type: Product })
+  @ApiNotFoundResponse({
+    description: 'No product matches the term.',
+    type: ErrorResponseDto,
+  })
   findOne(@Param('term') term: string) {
     return this.productsService.findOnePlain(term);
   }
@@ -90,6 +138,35 @@ export class ProductsController {
    */
   @Patch(':id')
   @Auth(ValidRoles.superUser)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Update a product',
+    description:
+      'Partially updates a product. Sending `images` replaces all its images inside a transaction. Requires the `super-user` role.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Product UUID',
+    format: 'uuid',
+  })
+  @ApiOkResponse({ description: 'The updated product.', type: Product })
+  @ApiBadRequestResponse({
+    description:
+      'Validation failed, the id is not a UUID, or the title/slug already exists.',
+    type: ErrorResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing, invalid or expired token.',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'The user does not have the `super-user` role.',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'No product with that id.',
+    type: ErrorResponseDto,
+  })
   update(
     @Param('id', ParseUUIDPipe) id: string,
     @Body() updateProductDto: UpdateProductDto,
@@ -107,6 +184,34 @@ export class ProductsController {
    */
   @Delete(':id')
   @Auth(ValidRoles.superUser)
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Delete a product',
+    description:
+      'Deletes a product and its images (cascade). Requires the `super-user` role. Responds with an empty body.',
+  })
+  @ApiParam({
+    name: 'id',
+    description: 'Product UUID',
+    format: 'uuid',
+  })
+  @ApiOkResponse({ description: 'The product was deleted (empty body).' })
+  @ApiBadRequestResponse({
+    description: 'The id is not a UUID.',
+    type: ErrorResponseDto,
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Missing, invalid or expired token.',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'The user does not have the `super-user` role.',
+    type: ErrorResponseDto,
+  })
+  @ApiNotFoundResponse({
+    description: 'No product with that id.',
+    type: ErrorResponseDto,
+  })
   remove(@Param('id', ParseUUIDPipe) id: string) {
     return this.productsService.remove(id);
   }

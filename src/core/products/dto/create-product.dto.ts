@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiProperty, ApiPropertyOptional } from '@nestjs/swagger';
 import {
   IsArray,
   IsIn,
@@ -22,7 +22,8 @@ export class CreateProductDto {
    * @example "Smartphone"
    */
   @ApiProperty({
-    description: 'The title of the product',
+    description: 'The title of the product (must be unique)',
+    example: 'Teslo Hoodie',
     nullable: false,
     minLength: 1,
   })
@@ -36,7 +37,12 @@ export class CreateProductDto {
    * This field is optional, as the price can be set later.
    * @example 699.99
    */
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'The price of the product (positive number, defaults to 0)',
+    example: 75,
+    exclusiveMinimum: true,
+    minimum: 0,
+  })
   @IsNumber()
   @IsPositive()
   @IsOptional()
@@ -48,7 +54,10 @@ export class CreateProductDto {
    * This field is optional, as the description can be added later.
    * @example "A high-end smartphone with 128GB storage"
    */
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'The description of the product',
+    example: 'A warm unisex hoodie with the Teslo logo.',
+  })
   @IsString()
   @IsOptional()
   description?: string;
@@ -59,7 +68,11 @@ export class CreateProductDto {
    * This field is optional, as the category can be added later.
    * @example "electronics"
    */
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description:
+      'Unique URL-friendly identifier. Generated from the title when omitted (lowercase, spaces → `_`, apostrophes removed)',
+    example: 'teslo_hoodie',
+  })
   @IsString()
   @IsOptional()
   slug?: string;
@@ -71,7 +84,12 @@ export class CreateProductDto {
    * If the stock is not provided, it is assumed to be 0.
    * @example 100
    */
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'Units in stock (positive integer, defaults to 0)',
+    example: 10,
+    type: 'integer',
+    minimum: 1,
+  })
   @IsInt()
   @IsPositive()
   @IsOptional()
@@ -83,7 +101,11 @@ export class CreateProductDto {
    * Each string should represent a size (e.g., 'S', 'M', 'L').
    * @example ["S", "M", "L"]
    */
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Available sizes',
+    example: ['S', 'M', 'L'],
+    type: [String],
+  })
   @IsString({ each: true })
   @IsArray()
   sizes: string[];
@@ -93,13 +115,26 @@ export class CreateProductDto {
    * It should be an array of strings.
    * Each string should represent a tag (e.g., 'new', 'sale', 'featured').
    */
-  @ApiProperty()
+  @ApiPropertyOptional({
+    description: 'Search tags',
+    example: ['hoodie'],
+    type: [String],
+  })
   @IsString({ each: true })
   @IsArray()
   @IsOptional()
   tags: string[];
 
-  @ApiProperty()
+  /**
+   * The image file names of the product.
+   * On update, sending this field replaces every existing image.
+   */
+  @ApiPropertyOptional({
+    description:
+      'Image file names (see POST /api/files/product). On update, replaces all the current images',
+    example: ['1740250-00-A_0_2000.jpg'],
+    type: [String],
+  })
   @IsString({ each: true })
   @IsArray()
   @IsOptional()
@@ -111,7 +146,11 @@ export class CreateProductDto {
    * This ensures the product is categorized correctly.
    * @example "unisex"
    */
-  @ApiProperty()
+  @ApiProperty({
+    description: 'Gender category of the product',
+    enum: ['men', 'women', 'kid', 'unisex'],
+    example: 'unisex',
+  })
   @IsIn(['men', 'women', 'kid', 'unisex'])
   gender: string;
 }

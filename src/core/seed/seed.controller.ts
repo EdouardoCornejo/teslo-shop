@@ -3,7 +3,15 @@ import { SeedService } from './seed.service';
 import { RoleProtected } from '../../core/auth/decorators';
 import { SeedAccessGuard } from './guards/seed-access.guard';
 import { ValidRoles } from 'src/common/interface';
-import { ApiTags } from '@nestjs/swagger';
+import {
+  ApiBearerAuth,
+  ApiForbiddenResponse,
+  ApiOkResponse,
+  ApiOperation,
+  ApiTags,
+  ApiUnauthorizedResponse,
+} from '@nestjs/swagger';
+import { ErrorResponseDto } from 'src/common/dtos/error-response.dto';
 
 /**
  * Controller responsible for handling the seed operations.
@@ -22,6 +30,24 @@ export class SeedController {
    * Open outside production; admin-only when NODE_ENV is 'production'.
    */
   @Get()
+  @ApiBearerAuth()
+  @ApiOperation({
+    summary: 'Run the seed',
+    description:
+      'Deletes every product and user and inserts the sample data: `admin@gmail.com` (admin) and `super-user@gmail.com` (user, super-user), both with password `Abc123456`, plus the product catalog. Open outside production; with `NODE_ENV=production` it requires an `admin` token.',
+  })
+  @ApiOkResponse({
+    description: 'Seed executed.',
+    schema: { type: 'string', example: 'SEED EXECUTED' },
+  })
+  @ApiUnauthorizedResponse({
+    description: 'Production only: missing, invalid or expired token.',
+    type: ErrorResponseDto,
+  })
+  @ApiForbiddenResponse({
+    description: 'Production only: the user does not have the `admin` role.',
+    type: ErrorResponseDto,
+  })
   @RoleProtected(ValidRoles.admin)
   @UseGuards(SeedAccessGuard)
   executeSeed() {

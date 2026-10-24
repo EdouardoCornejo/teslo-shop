@@ -1,4 +1,4 @@
-import { ApiProperty } from '@nestjs/swagger';
+import { ApiPropertyOptional } from '@nestjs/swagger';
 import { Type } from 'class-transformer';
 import { IsOptional, IsPositive, Min } from 'class-validator';
 
@@ -13,8 +13,11 @@ export class PaginationDto {
    * It should be a positive number.
    * This field is optional, as the default limit is set in the service.
    */
-  @ApiProperty({
+  @ApiPropertyOptional({
     default: 10,
+    minimum: 1,
+    type: Number,
+    example: 10,
     description: 'How many rows do you need',
   })
   @IsOptional()
@@ -27,8 +30,11 @@ export class PaginationDto {
    * It should be a non-negative number.
    * This field is optional, as the default offset is set in the service.
    */
-  @ApiProperty({
+  @ApiPropertyOptional({
     default: 0,
+    minimum: 0,
+    type: Number,
+    example: 0,
     description: 'How many rows do you want to skip',
   })
   @IsOptional()

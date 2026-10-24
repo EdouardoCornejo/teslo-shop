@@ -24,7 +24,7 @@ export class Product {
   @ApiProperty({
     example: 'a8134509-c862-44f4-8bda-52b9cc595518',
     description: 'The unique identifier of the product',
-    uniqueItems: true,
+    format: 'uuid',
   })
   @PrimaryGeneratedColumn('uuid')
   id: string;
@@ -34,9 +34,8 @@ export class Product {
    * It should be a string with a minimum length of 1 character.
    */
   @ApiProperty({
-    example: 't-shirt',
-    description: 'Product title',
-    uniqueItems: true,
+    example: 'Men’s Chill Crew Neck Sweatshirt',
+    description: 'Product title (unique)',
   })
   @Column('text', {
     unique: true,
@@ -49,9 +48,9 @@ export class Product {
    * It is optional, as the price can be set later.
    */
   @ApiProperty({
-    example: 10.99,
+    example: 75,
     description: 'Product price',
-    uniqueItems: true,
+    default: 0,
   })
   @Column('float', {
     default: 0,
@@ -64,9 +63,9 @@ export class Product {
    * It is optional, as the description can be added later.
    */
   @ApiProperty({
-    example: 'This is a t-shirt',
+    example: 'Introducing the Tesla Chill Collection...',
     description: 'Product description',
-    uniqueItems: true,
+    nullable: true,
   })
   @Column({
     type: 'text',
@@ -79,9 +78,9 @@ export class Product {
    * It is a unique identifier for the product.
    */
   @ApiProperty({
-    example: 't_shirt',
-    description: 'Product slug identifier',
-    uniqueItems: true,
+    example: 'mens_chill_crew_neck_sweatshirt',
+    description:
+      'Unique URL-friendly identifier, generated from the title when omitted',
   })
   @Column({
     type: 'text',
@@ -95,8 +94,8 @@ export class Product {
    * It is optional, as the stock can be added later.
    */
   @ApiProperty({
-    example: 10,
-    description: 'Product Stock',
+    example: 7,
+    description: 'Units in stock',
     default: 0,
   })
   @Column('int', {
@@ -110,8 +109,9 @@ export class Product {
    * Each string should represent a size (e.g., 'S', 'M', 'L').
    */
   @ApiProperty({
-    example: ['S', 'M', 'L'],
-    description: 'Product sizes',
+    example: ['XS', 'S', 'M', 'L', 'XL', 'XXL'],
+    description: 'Available sizes',
+    type: [String],
   })
   @Column('text', {
     array: true,
@@ -125,8 +125,9 @@ export class Product {
    * Each string should represent a color (e.g., 'red', 'blue', 'green').
    */
   @ApiProperty({
-    example: 'women',
+    example: 'men',
     description: 'Product gender',
+    enum: ['men', 'women', 'kid', 'unisex'],
   })
   @Column('text')
   gender: string;
@@ -136,13 +137,24 @@ export class Product {
    * It should be an array of strings.
    * Each string should represent a tag (e.g., 'new', 'sale', 'featured').
    */
-  @ApiProperty()
+  @ApiProperty({
+    example: ['sweatshirt'],
+    description: 'Search tags',
+    type: [String],
+  })
   @Column('text', {
     array: true,
     default: [],
   })
   tags: string[];
 
+  /**
+   * The user who created or last updated the product.
+   */
+  @ApiProperty({
+    type: () => User,
+    description: 'User who created or last updated the product',
+  })
   @ManyToOne(() => User, (user) => user.product, { eager: true })
   user: User;
 
@@ -150,7 +162,12 @@ export class Product {
    * The images of the product.
    * It should be an array of ProductImage entities.
    */
-  @ApiProperty()
+  @ApiProperty({
+    example: ['1740176-00-A_0_2000.jpg', '1740176-00-A_1.jpg'],
+    description:
+      'Image file names, served at /api/files/product/{imageName} (returned as plain strings)',
+    type: [String],
+  })
   @OneToMany(() => ProductImage, (productImage) => productImage.product, {
     cascade: true,
     eager: true,

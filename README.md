@@ -27,6 +27,7 @@ API **REST** para una **tienda de ropa** construida con **NestJS**, **TypeORM** 
     - [Poblar la base de datos (seed)](#poblar-la-base-de-datos-seed)
     - [Scripts disponibles](#scripts-disponibles)
   - [Endpoints](#endpoints)
+    - [Documentación interactiva (Swagger)](#documentación-interactiva-swagger)
     - [WebSockets](#websockets)
   - [Cómo funciona](#cómo-funciona)
     - [1. `auth`](#1-auth)
@@ -52,7 +53,7 @@ API **REST** para una **tienda de ropa** construida con **NestJS**, **TypeORM** 
 - **Slug automático** generado a partir del título en los _hooks_ `@BeforeInsert` / `@BeforeUpdate`.
 - **Subida de imágenes** (`jpg`, `jpeg`, `png`, `gif`) con nombre UUID y descarga por nombre de archivo.
 - **Chat en tiempo real** con Socket.IO: solo conecta quien envía un JWT válido, se notifica la lista de clientes conectados y se evita la sesión duplicada del mismo usuario.
-- **Swagger** en `/api/docs` y documentación de código con **Compodoc**.
+- **Swagger** en `/api/docs` (todos los endpoints con resumen, respuestas y errores, DTOs con ejemplos y _Bearer auth_) y documentación de código con **Compodoc**.
 - **Seed** que reinicia la base de datos con usuarios y productos de ejemplo.
 
 ---
@@ -111,6 +112,7 @@ npm run start:dev
 
 - API: `http://localhost:3000/api`
 - Swagger: `http://localhost:3000/api/docs`
+- OpenAPI (JSON): `http://localhost:3000/api/docs-json`
 
 ### Poblar la base de datos (seed)
 
@@ -164,6 +166,16 @@ Todas las rutas llevan el prefijo global `/api`.
 | `GET`    | `/files/product/:imageName` | Devuelve una imagen subida                            | Público                                                        |
 | `GET`    | `/seed`                     | Reinicia la base de datos con datos de ejemplo        | Público fuera de producción; `admin` con `NODE_ENV=production` |
 
+### Documentación interactiva (Swagger)
+
+`http://localhost:3000/api/docs` documenta todas las rutas REST, agrupadas por etiqueta (`Auth`, `Products`, `Files`, `Seed`):
+
+- Cada endpoint tiene **resumen**, descripción y sus **respuestas** de éxito y error (`400` validación o duplicado, `401` sin token o token inválido, `403` rol insuficiente, `404` producto inexistente), con el esquema de error estándar de NestJS (`statusCode`, `message`, `error`).
+- Los DTOs (`CreateUserDto`, `LoginUserDto`, `CreateProductDto`, `UpdateProductDto`, `PaginationDto`) muestran **ejemplos**, descripciones y restricciones (longitudes, mínimos, `enum` de `gender`).
+- Las rutas protegidas llevan el candado de **Bearer auth**: inicia sesión (por ejemplo con `super-user@gmail.com` / `Abc123456` tras ejecutar el seed), pulsa **Authorize** y pega el `token`; la autorización se conserva al recargar.
+- `POST /files/product` aparece como formulario `multipart/form-data` con selector de archivo.
+- El documento OpenAPI en JSON está en `/api/docs-json` (útil para Postman o generadores de clientes). Los eventos de Socket.IO no forman parte de OpenAPI; se describen en la [sección de WebSockets](#websockets).
+
 Ejemplo de cuerpo para `POST /api/products`:
 
 ```json
@@ -191,7 +203,7 @@ Servidor Socket.IO (`@WebSocketGateway({ cors: true })`) en el mismo puerto de l
 
 ## Cómo funciona
 
-`src/main.ts` crea la aplicación con `CustomLoggerService`, fija el prefijo global `api`, registra un `ValidationPipe` (`whitelist`, `forbidNonWhitelisted`), configura Swagger con `DocumentBuilder` (incluye _Bearer auth_) y escucha en `PORT` (o `3000`). `AppModule` configura `TypeOrmModule` (PostgreSQL, `autoLoadEntities`, `synchronize`), `ServeStaticModule` para la carpeta `public/` y los módulos de negocio.
+`src/main.ts` crea la aplicación con `CustomLoggerService`, fija el prefijo global `api`, registra un `ValidationPipe` (`whitelist`, `forbidNonWhitelisted`), configura Swagger con `DocumentBuilder` (título, descripción, versión, etiquetas y _Bearer auth_ JWT) en `/api/docs` y escucha en `PORT` (o `3000`). `AppModule` configura `TypeOrmModule` (PostgreSQL, `autoLoadEntities`, `synchronize`), `ServeStaticModule` para la carpeta `public/` y los módulos de negocio.
 
 ### 1. `auth`
 
@@ -277,13 +289,13 @@ teslo-shop/
 │   ├── common/
 │   │   ├── adapters/auth/            # BcryptDomain, BcryptAdapter, passwordEncrypt
 │   │   ├── config/                   # env.config.ts, joi.schema-validation.ts
-│   │   ├── dtos/pagination.dto.ts
+│   │   ├── dtos/                     # PaginationDto, ErrorResponseDto (esquema de error en Swagger)
 │   │   └── interface/                # JwtPayload, ValidRoles
 │   ├── core/
 │   │   ├── auth/                     # controller, service, entidad User, JwtStrategy,
 │   │   │                             # UserRoleGuard, @Auth, @RoleProtected, DTOs
 │   │   ├── products/                 # controller, service, entidades Product y ProductImage, DTOs
-│   │   ├── files/                    # subida y descarga de imágenes
+│   │   ├── files/                    # subida y descarga de imágenes (dto/ para Swagger)
 │   │   ├── message-ws/               # gateway y service de Socket.IO
 │   │   └── seed/                     # controller, service, guards/seed-access.guard.ts y data/seed-data.ts
 │   └── shared/
