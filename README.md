@@ -85,8 +85,9 @@ DB_HOST='localhost'
 DB_PORT=5432
 DB_USER_NAME='postgres'
 
-HOST_API='http://localhost:3000'
+HOST_API='http://localhost:3000/api'
 PORT=3000
+NODE_ENV='development'
 
 JWT_SECRET=<tu_secreto>
 EXPIRES_JWT="1h"
@@ -115,28 +116,30 @@ npm run start:dev
 
 ```
 GET http://localhost:3000/api/seed
-Authorization: Bearer <token de un usuario admin>
 ```
 
-El endpoint está protegido con `@Auth(ValidRoles.admin)`. Borra productos y usuarios y crea los datos de `src/core/seed/data/seed-data.ts` (un usuario `admin`, un usuario `super-user` y el catálogo de productos). En una base de datos vacía no existe aún ningún administrador: registra un usuario y asígnale el rol `admin` en la columna `roles` de la tabla `users` antes de lanzar el seed por primera vez.
+Borra productos y usuarios y crea los datos de `src/core/seed/data/seed-data.ts` (un usuario `admin`, un usuario `super-user` y el catálogo de productos). El acceso lo controla `SeedAccessGuard` (`src/core/seed/guards/seed-access.guard.ts`) según `NODE_ENV`:
+
+- **`NODE_ENV` distinto de `production`** (desarrollo, valor por defecto): el endpoint es público, así que puedes poblar una base de datos vacía sin token; el propio seed crea el primer administrador.
+- **`NODE_ENV=production`**: exige `Authorization: Bearer <token de un usuario admin>`, igual que `@Auth(ValidRoles.admin)`.
 
 ### Scripts disponibles
 
-| Script                  | Descripción                                          |
-| ----------------------- | ---------------------------------------------------- |
-| `npm run start`         | Arranca la aplicación                                |
-| `npm run start:dev`     | Modo desarrollo con _watch_                          |
-| `npm run start:debug`   | Modo depuración con _watch_                          |
-| `npm run build`         | Compila a `dist/`                                    |
-| `npm run start:prod`    | Ejecuta la build (`node dist/main`)                  |
-| `npm run lint`          | ESLint con autocorrección                            |
-| `npm run format`        | Prettier sobre `src/` y `test/`                      |
-| `npm run test`          | Tests unitarios (Jest)                               |
-| `npm run test:e2e`      | Tests end-to-end                                     |
-| `npm run test:cov`      | Cobertura de tests                                   |
-| `npm run docs:serve`    | Sirve la documentación de Compodoc                   |
-| `npm run docs:build`    | Genera la documentación "Teslo-Shop Documentation"   |
-| `npm run docs:coverage` | Comprueba cobertura de documentación (mínimo 85 %)   |
+| Script                  | Descripción                                        |
+| ----------------------- | -------------------------------------------------- |
+| `npm run start`         | Arranca la aplicación                              |
+| `npm run start:dev`     | Modo desarrollo con _watch_                        |
+| `npm run start:debug`   | Modo depuración con _watch_                        |
+| `npm run build`         | Compila a `dist/`                                  |
+| `npm run start:prod`    | Ejecuta la build (`node dist/main`)                |
+| `npm run lint`          | ESLint con autocorrección                          |
+| `npm run format`        | Prettier sobre `src/` y `test/`                    |
+| `npm run test`          | Tests unitarios (Jest)                             |
+| `npm run test:e2e`      | Tests end-to-end                                   |
+| `npm run test:cov`      | Cobertura de tests                                 |
+| `npm run docs:serve`    | Sirve la documentación de Compodoc                 |
+| `npm run docs:build`    | Genera la documentación "Teslo-Shop Documentation" |
+| `npm run docs:coverage` | Comprueba cobertura de documentación (mínimo 85 %) |
 
 ---
 
@@ -144,22 +147,22 @@ El endpoint está protegido con `@Auth(ValidRoles.admin)`. Borra productos y usu
 
 Todas las rutas llevan el prefijo global `/api`.
 
-| Método   | Ruta                          | Descripción                                         | Acceso                 |
-| -------- | ----------------------------- | --------------------------------------------------- | ---------------------- |
-| `POST`   | `/auth/register`              | Registra un usuario y devuelve el usuario + `token` | Público                |
-| `POST`   | `/auth/login`                 | Devuelve `email` + `token`                          | Público                |
-| `GET`    | `/auth/auth-status`           | Revalida el token del usuario autenticado           | Autenticado            |
-| `GET`    | `/auth/private`               | Ruta de prueba (usuario y cabeceras crudas)         | Autenticado            |
-| `GET`    | `/auth/private2`              | Ruta de prueba con `@RoleProtected`                 | `super-user`           |
-| `GET`    | `/auth/private3`              | Ruta de prueba con `@Auth`                          | `admin`                |
-| `POST`   | `/products`                   | Crea un producto asociado al usuario                | Autenticado            |
-| `GET`    | `/products?limit=&offset=`    | Lista productos paginados con sus URLs de imagen    | Público                |
-| `GET`    | `/products/:term`             | Busca por UUID, título o slug                       | Público                |
-| `PATCH`  | `/products/:id`               | Actualiza un producto (e imágenes)                  | `super-user`           |
-| `DELETE` | `/products/:id`               | Elimina un producto                                 | `super-user`           |
-| `POST`   | `/files/product`              | Sube una imagen (campo `file`) y devuelve `secureUrl` | Público              |
-| `GET`    | `/files/product/:imageName`   | Devuelve una imagen subida                          | Público                |
-| `GET`    | `/seed`                       | Reinicia la base de datos con datos de ejemplo      | `admin`                |
+| Método   | Ruta                        | Descripción                                           | Acceso                                                         |
+| -------- | --------------------------- | ----------------------------------------------------- | -------------------------------------------------------------- |
+| `POST`   | `/auth/register`            | Registra un usuario y devuelve el usuario + `token`   | Público                                                        |
+| `POST`   | `/auth/login`               | Devuelve `email` + `token`                            | Público                                                        |
+| `GET`    | `/auth/auth-status`         | Revalida el token del usuario autenticado             | Autenticado                                                    |
+| `GET`    | `/auth/private`             | Ruta de prueba (usuario y cabeceras crudas)           | Autenticado                                                    |
+| `GET`    | `/auth/private2`            | Ruta de prueba con `@RoleProtected`                   | `super-user`                                                   |
+| `GET`    | `/auth/private3`            | Ruta de prueba con `@Auth`                            | `admin`                                                        |
+| `POST`   | `/products`                 | Crea un producto asociado al usuario                  | Autenticado                                                    |
+| `GET`    | `/products?limit=&offset=`  | Lista productos paginados con sus URLs de imagen      | Público                                                        |
+| `GET`    | `/products/:term`           | Busca por UUID, título o slug                         | Público                                                        |
+| `PATCH`  | `/products/:id`             | Actualiza un producto (e imágenes)                    | `super-user`                                                   |
+| `DELETE` | `/products/:id`             | Elimina un producto                                   | `super-user`                                                   |
+| `POST`   | `/files/product`            | Sube una imagen (campo `file`) y devuelve `secureUrl` | Público                                                        |
+| `GET`    | `/files/product/:imageName` | Devuelve una imagen subida                            | Público                                                        |
+| `GET`    | `/seed`                     | Reinicia la base de datos con datos de ejemplo        | Público fuera de producción; `admin` con `NODE_ENV=production` |
 
 Ejemplo de cuerpo para `POST /api/products`:
 
@@ -178,11 +181,11 @@ Ejemplo de cuerpo para `POST /api/products`:
 
 Servidor Socket.IO (`@WebSocketGateway({ cors: true })`) en el mismo puerto de la API. El cliente debe enviar el JWT en la cabecera de _handshake_ `authentication`.
 
-| Evento                | Dirección          | Contenido                                         |
-| --------------------- | ------------------ | ------------------------------------------------- |
-| `clients-updated`     | servidor → todos   | Array con los ids de los sockets conectados       |
-| `message-from-client` | cliente → servidor | `{ message: string }`                             |
-| `message-from-server` | servidor → todos   | `{ fullName, message }`                           |
+| Evento                | Dirección          | Contenido                                   |
+| --------------------- | ------------------ | ------------------------------------------- |
+| `clients-updated`     | servidor → todos   | Array con los ids de los sockets conectados |
+| `message-from-client` | cliente → servidor | `{ message: string }`                       |
+| `message-from-server` | servidor → todos   | `{ fullName, message }`                     |
 
 ---
 
@@ -220,7 +223,7 @@ Servidor Socket.IO (`@WebSocketGateway({ cors: true })`) en el mismo puerto de l
 
 ### 5. `seed`
 
-`SeedService.runSeed` borra productos y usuarios, inserta los usuarios de `initialData` (contraseñas ya cifradas con bcrypt) y crea todos los productos con `ProductsService.create`, asignados al segundo usuario.
+`SeedController` usa `SeedAccessGuard`, que deja pasar cualquier petición fuera de producción y, con `NODE_ENV=production`, aplica la estrategia JWT y `UserRoleGuard` con el rol `admin`. `SeedService.runSeed` borra productos y usuarios, inserta los usuarios de `initialData` (contraseñas ya cifradas con bcrypt) y crea todos los productos con `ProductsService.create`, asignados al segundo usuario.
 
 ### 6. `common` y `shared`
 
@@ -282,7 +285,7 @@ teslo-shop/
 │   │   ├── products/                 # controller, service, entidades Product y ProductImage, DTOs
 │   │   ├── files/                    # subida y descarga de imágenes
 │   │   ├── message-ws/               # gateway y service de Socket.IO
-│   │   └── seed/                     # controller, service y data/seed-data.ts
+│   │   └── seed/                     # controller, service, guards/seed-access.guard.ts y data/seed-data.ts
 │   └── shared/
 │       ├── config/log/               # CustomLoggerService
 │       ├── decorators/               # @GetUser, @RawHeaders
@@ -294,6 +297,7 @@ teslo-shop/
 ├── .env.example
 ├── nest-cli.json
 ├── tsconfig.json
+├── tsconfig.doc.json                 # tsconfig auxiliar para la documentación (Compodoc)
 └── package.json
 ```
 
@@ -301,19 +305,20 @@ teslo-shop/
 
 ## Personalización
 
-| Variable       | Significado                                             | Valor en `.env.example`    |
-| -------------- | ------------------------------------------------------- | -------------------------- |
-| `DB_PASSWORD`  | Contraseña de PostgreSQL (también usada por Docker)     | —                          |
-| `DB_NAME`      | Nombre de la base de datos (también usado por Docker)   | `TesloDB`                  |
-| `DB_HOST`      | Host de PostgreSQL                                      | `localhost`                |
-| `DB_PORT`      | Puerto de PostgreSQL                                    | `5432`                     |
-| `DB_USER_NAME` | Usuario de PostgreSQL                                   | `postgres`                 |
-| `HOST_API`     | URL base usada para construir `secureUrl` de imágenes   | `http://localhost:3000`    |
-| `PORT`         | Puerto HTTP de la API (por defecto `3000`)              | `3000`                     |
-| `JWT_SECRET`   | Secreto para firmar y verificar tokens (HTTP y WS)      | —                          |
-| `EXPIRES_JWT`  | Caducidad del token                                     | `1h`                       |
+| Variable       | Significado                                                                   | Valor en `.env.example`     |
+| -------------- | ----------------------------------------------------------------------------- | --------------------------- |
+| `DB_PASSWORD`  | Contraseña de PostgreSQL (también usada por Docker)                           | —                           |
+| `DB_NAME`      | Nombre de la base de datos (también usado por Docker)                         | `TesloDB`                   |
+| `DB_HOST`      | Host de PostgreSQL                                                            | `localhost`                 |
+| `DB_PORT`      | Puerto de PostgreSQL                                                          | `5432`                      |
+| `DB_USER_NAME` | Usuario de PostgreSQL                                                         | `postgres`                  |
+| `HOST_API`     | URL base (con el prefijo `/api`) usada para construir `secureUrl` de imágenes | `http://localhost:3000/api` |
+| `PORT`         | Puerto HTTP de la API (por defecto `3000`)                                    | `3000`                      |
+| `NODE_ENV`     | Con `production` el seed solo lo puede ejecutar un `admin`                    | `development`               |
+| `JWT_SECRET`   | Secreto para firmar y verificar tokens (HTTP y WS)                            | —                           |
+| `EXPIRES_JWT`  | Caducidad del token                                                           | `1h`                        |
 
-> `HOST_API` debería incluir el prefijo `/api` (por ejemplo `http://localhost:3000/api`) para que la `secureUrl` devuelta apunte a la ruta real `/api/files/product/:imageName`.
+> `HOST_API` incluye el prefijo global `/api`, de modo que la `secureUrl` devuelta (`${HOST_API}/files/product/:imageName`) apunta a la ruta real `/api/files/product/:imageName`.
 
 ---
 
