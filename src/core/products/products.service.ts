@@ -100,37 +100,30 @@ export class ProductsService {
   /**
    * The findOne method is used to get a single product by its id.
    * It takes the id of the product as a parameter and returns the product.
-   * If the product is not found, it returns an error.
-   * The method calls the findOne method of the Product entity repository to get the product.
-   * The method catches any errors that occur during the database operation and logs them.
-   * If the error is a unique constraint violation, it throws a BadRequestException with the error message.
-   * @param id The id of the product to find.
-   * It is a string that represents the unique identifier of the product.
+   * If the product is not found, it throws a NotFoundException (404).
+   * @param term The UUID, title or slug of the product to find.
    */
-  async findOne(term: string) {
+  async findOne(term: string): Promise<Product> {
     let product: Product;
-    try {
-      if (isUUID(term)) {
-        product = await this.productRepository.findOneBy({ id: term });
-      } else {
-        const queryBuilder = this.productRepository.createQueryBuilder('prod');
-        product = await queryBuilder
-          .where('UPPER(title) =:title or slug =:slug', {
-            title: term.toUpperCase(),
-            slug: term.toLowerCase(),
-          })
-          .leftJoinAndSelect('prod.images', 'prodImages')
-          .getOne();
-      }
 
-      if (!product) {
-        throw new Error('Product not found');
-      }
-
-      return product;
-    } catch (error) {
-      return error.message;
+    if (isUUID(term)) {
+      product = await this.productRepository.findOneBy({ id: term });
+    } else {
+      const queryBuilder = this.productRepository.createQueryBuilder('prod');
+      product = await queryBuilder
+        .where('UPPER(title) =:title or slug =:slug', {
+          title: term.toUpperCase(),
+          slug: term.toLowerCase(),
+        })
+        .leftJoinAndSelect('prod.images', 'prodImages')
+        .getOne();
     }
+
+    if (!product) {
+      throw new NotFoundException(`Product with term "${term}" not found`);
+    }
+
+    return product;
   }
 
   /**

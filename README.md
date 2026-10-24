@@ -207,7 +207,7 @@ Servidor Socket.IO (`@WebSocketGateway({ cors: true })`) en el mismo puerto de l
 - `ProductsService`:
   - `create` crea las `ProductImage` a partir de las URLs recibidas.
   - `findAll` pagina y aplana las imágenes a un array de URLs.
-  - `findOne` usa `uuid.validate` para decidir entre buscar por id o por `UPPER(title)` / `slug` con `QueryBuilder`.
+  - `findOne` usa `uuid.validate` para decidir entre buscar por id o por `UPPER(title)` / `slug` con `QueryBuilder`, y lanza `NotFoundException` (404) si no hay coincidencia; `GET /products/:term` y `DELETE /products/:id` responden 404 ante un producto inexistente.
   - `update` usa `preload` y un `QueryRunner` con `startTransaction` / `commitTransaction` / `rollbackTransaction` para sustituir las imágenes.
 - `CreateProductDto` valida `gender` con `@IsIn(['men', 'women', 'kid', 'unisex'])`.
 
